@@ -1,0 +1,57 @@
+name: iam-service
+
+networks:
+  design-software_default:
+    external: true
+
+services:
+  iam-service:
+    build: .
+    image: iam-service:latest
+    container_name: ds-iam-service
+    networks:
+      - design-software_default
+    environment:
+      DB_HOST: design-software-db
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_SCHEMA: identity
+      JWT_SECRET: ${JWT_SECRET}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      FRONTEND_RESET_URL: ${FRONTEND_RESET_URL}
+      ENV: development
+      PORT: "8001"
+    ports:
+      - "8001:8001"
+
+  iam-seed:
+    build:
+      context: .
+      target: builder
+    container_name: ds-iam-seed
+    networks:
+      - design-software_default
+    environment:
+      DB_HOST: design-software-db
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_SCHEMA: identity
+      JWT_SECRET: ${JWT_SECRET}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      FRONTEND_RESET_URL: ${FRONTEND_RESET_URL}
+      FRONTEND_LOGIN_URL: ${FRONTEND_LOGIN_URL}
+      ENV: development
+      PORT: "8001"
+    command: ["go", "run", "./cmd/seed"]
